@@ -1,1 +1,28 @@
-<h1>HOLA</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Asistencia de Trabajo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Lista de Asistencia de Trabajo</h1>
+    <table id="attendanceTable">
+      <thead>
+        <tr>
+          <th>Nombre del Empleado</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- Aquí se generarán las filas de empleados con JavaScript -->
+      </tbody>
+    </table>
+    <button onclick="saveAndSend()">Guardar y Enviar</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
