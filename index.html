@@ -1,28 +1,128 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lista de Asistencia de Trabajo</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Asistencia</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Importar html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>Lista de Asistencia de Trabajo</h1>
-    <table id="attendanceTable">
-      <thead>
-        <tr>
-          <th>Nombre del Empleado</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody id="tableBody">
-        <!-- Aquí se generarán las filas de empleados con JavaScript -->
-      </tbody>
-    </table>
-    <button onclick="saveAndSend()">Guardar y Enviar</button>
-  </div>
+    <div class="container">
+        <h1>LISTA DE ASISTENCIA BILDEN</h1>
+        <form id="attendanceForm" onsubmit="return captureAndSendImage(event)">
+            <table id="attendanceTable" class="attendance-list">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Lunes</th>
+                        <th>Martes</th>
+                        <th>Miércoles</th>
+                        <th>Jueves</th>
+                        <th>Viernes</th>
+                        <th>Sábado</th>
+                        <th>Domingo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" name="names[]" value="Juan Pérez" readonly></td>
+                        <td><select name="monday[]" class="attendance-select" onchange="saveAttendance(this)">
+                            <option value="">Selecciona</option>
+                            <option value="Asistencia">Asistencia</option>
+                            <option value="No asistió">No asistió</option>
+                        </select></td>
+                        <td><select name="tuesday[]" class="attendance-select" onchange="saveAttendance(this)">
+                            <option value="">Selecciona</option>
+                            <option value="Asistencia">Asistencia</option>
+                            <option value="No asistió">No asistió</option>
+                        </select></td>
+                        <td><select name="wednesday[]" class="attendance-select" onchange="saveAttendance(this)">
+                            <option value="">Selecciona</option>
+                            <option value="Asistencia">Asistencia</option>
+                            <option value="No asistió">No asistió</option>
+                        </select></td>
+                        <td><select name="thursday[]" class="attendance-select" onchange="saveAttendance(this)">
+                            <option value="">Selecciona</option>
+                            <option value="Asistencia">Asistencia</option>
+                            <option value="No asistió">No asistió</option>
+                        </select></td>
+                        <td><select name="friday[]" class="attendance-select" onchange="saveAttendance(this)">
+                            <option value="">Selecciona</option>
+                            <option value="Asistencia">Asistencia</option>
+                            <option value="No asistió">No asistió</option>
+                        </select></td>
+                        <td><select name="saturday[]" class="attendance-select" onchange="saveAttendance(this)">
+                            <option value="">Selecciona</option>
+                            <option value="Asistencia">Asistencia</option>
+                            <option value="No asistió">No asistió</option>
+                        </select></td>
+                        <td><input type="text" name="sunday[]" placeholder="No disponible" readonly></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="button-container">
+                <button type="submit">Guardar Asistencia</button>
+            </div>
+        </form>
+    </div>
 
-  <script src="script.js"></script>
+    <script>
+        // Guardar selección en localStorage
+        function saveAttendance(element) {
+            const day = element.name; // Obtener el nombre del día (lunes, martes, etc.)
+            const value = element.value; // Obtener el valor seleccionado
+            const rowIndex = element.closest("tr").rowIndex - 1; // Obtener el índice de la fila
+
+            // Crear un objeto para almacenar el estado en localStorage
+            let attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+            if (!attendanceData[rowIndex]) attendanceData[rowIndex] = {};
+
+            // Guardar la selección en el objeto
+            attendanceData[rowIndex][day] = value;
+
+            // Almacenar el objeto en localStorage
+            localStorage.setItem('attendanceData', JSON.stringify(attendanceData));
+        }
+
+        // Cargar datos desde localStorage al cargar la página
+        function loadAttendanceData() {
+            const attendanceData = JSON.parse(localStorage.getItem('attendanceData')) || {};
+            const form = document.getElementById('attendanceForm');
+
+            // Recorre cada campo y restaura el valor guardado
+            Object.keys(attendanceData).forEach(rowIndex => {
+                Object.keys(attendanceData[rowIndex]).forEach(day => {
+                    const selectElement = form.querySelector(`select[name="${day}[]"]`);
+                    if (selectElement) selectElement.value = attendanceData[rowIndex][day];
+                });
+            });
+        }
+
+        // Llama a la función para cargar los datos guardados
+        loadAttendanceData();
+
+        // Capturar la imagen de la tabla y enviar por WhatsApp
+        function captureAndSendImage(event) {
+            event.preventDefault();
+
+            // Convertir la tabla en imagen
+            html2canvas(document.getElementById('attendanceTable')).then(canvas => {
+                const imgData = canvas.toDataURL("image/png");
+                sendWhatsAppImage(imgData); // Enviar imagen por WhatsApp
+            });
+
+            return false; // Para prevenir el envío del formulario
+        }
+
+        // Función para enviar imagen por WhatsApp
+        function sendWhatsAppImage(imageData) {
+            const phoneNumber = "+522727225840";
+            const encodedImage = encodeURIComponent(imageData);
+            const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=Aquí%20está%20la%20asistencia%20de%20hoy:%20${encodedImage}`;
+            window.open(url, '_blank');
+        }
+    </script>
 </body>
 </html>
